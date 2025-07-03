@@ -12,7 +12,8 @@ public class Test {
             System.out.println("1.根据书籍编号查询书籍信息");
             System.out.println("2.查询所有书籍信息");
             System.out.println("3.删除指定书籍编号对应的书籍");
-            System.out.println("4.退出应用");
+            System.out.println("4.添加书籍");
+            System.out.println("5.退出应用");
             System.out.println("请输入你想要执行的功能：");
             int choice = sc.nextInt();
             if (choice == 1) {
@@ -52,7 +53,31 @@ public class Test {
                     System.out.println("删除成功");
                 }
             }
-            if (choice == 4) {
+            if (choice == 4){
+                //键盘录入书籍编号
+                System.out.println("请输入书籍的编号：");
+                int bno = sc.nextInt();
+                System.out.println("请输入书籍的名字：");
+                String bName = sc.next();
+                System.out.println("请输入书籍作者：");
+                String bAuthor = sc.next();
+                System.out.println("请输入书籍价格：");
+                double bPrice = sc.nextDouble();
+
+                Book b = new Book();
+                b.setId(bno);
+                b.setName(bName);
+                b.setAuthor(bAuthor);
+                b.setPrice(bPrice);
+
+                boolean success = addBook(b);
+                if (success) {
+                    System.out.println("书籍添加成功！");
+                } else {
+                    System.out.println("书籍添加失败！");
+                }
+            }
+            if (choice == 5) {
                 System.out.println(">>>退出应用");
                 break;
             }
@@ -147,5 +172,48 @@ public class Test {
         conn.close();
 
         return n;
+    }
+
+    public static boolean addBook(Book book) throws ClassNotFoundException, SQLException {
+        // 加载驱动
+        Class.forName("com.mysql.cj.jdbc.Driver");
+
+        // 数据库连接配置
+        String url = "jdbc:mysql://127.0.0.1:3306/msb?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true";
+        String username = "root";
+        String password = "123456";
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        boolean isSuccess = false;
+
+        try {
+            // 获取连接
+            conn = DriverManager.getConnection(url, username, password);
+
+            // 准备SQL语句（使用参数化查询防止SQL注入）
+            String sql = "INSERT INTO t_book (id, name, author, price) VALUES (?, ?, ?, ?)";
+            pstmt = conn.prepareStatement(sql);
+
+            // 设置参数
+            pstmt.setInt(1, book.getId());
+            pstmt.setString(2, book.getName());
+            pstmt.setString(3, book.getAuthor());
+            pstmt.setDouble(4, book.getPrice());
+
+            // 执行更新
+            int rowsAffected = pstmt.executeUpdate();
+
+            // 判断是否添加成功
+            if (rowsAffected > 0) {
+                isSuccess = true;
+            }
+        } finally {
+            // 关闭资源（确保在任何情况下都执行）
+            if (pstmt != null) pstmt.close();
+            if (conn != null) conn.close();
+        }
+
+        return isSuccess;
     }
 }
