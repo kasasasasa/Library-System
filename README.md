@@ -1,7 +1,7 @@
 # Library-System
 ## 图书管理系统
 本项目使用JDBC连接数据库<br>
-#### 主函数路径：TestJDBC/target/test-classes/com/msb/test02/Test.class
+#### 主函数路径：TestJDBC/target/test-classes/com/msb/test02/Test.java
 ***
 ### 实现功能如下：<br>
 1.根据书籍编号查询书籍信息<br>
