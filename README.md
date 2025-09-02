@@ -1,6 +1,6 @@
 # Library-System
 ## 图书管理系统
-本项目使用JDBC连接数据库<br>
+本项目使用JDBC连接数据库并实现数据库的增删改查<br>
 #### 主函数路径：TestJDBC/target/test-classes/com/msb/test02/Test.java
 ***
 ### 实现功能如下：<br>
