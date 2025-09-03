@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.BookMapper">
+    
+    <resultMap type="Book" id="BookResult">
+        <result property="id"    column="id"    />
+        <result property="title"    column="title"    />
+        <result property="cover"    column="cover"    />
+        <result property="author"    column="author"    />
+        <result property="publisher"    column="publisher"    />
+        <result property="publishDate"    column="publish_date"    />
+        <result property="price"    column="price"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="regionId"    column="region_id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectBookVo">
+        select id, title, cover, author, publisher, publish_date, price, quantity, region_id, category_id, create_time, update_time, create_by, update_by, remark from tb_book
+    </sql>
+    
+    <select id="selectBookById" parameterType="Long" resultMap="BookResult">
+        <include refid="selectBookVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectBookList" parameterType="com.ruoyi.manage.domain.Book" resultMap="BookResult">
+        select * from tb_book
+        <where>
+            <if test="title != null and title != ''">
+                AND title like concat('%', #{title}, '%')
+            </if>
+            <if test="author != null and author != ''">
+                AND author like concat('%', #{author}, '%')
+            </if>
+            <if test="regionId != null">
+                AND region_id = #{regionId}
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectBookVoList" parameterType="com.ruoyi.manage.domain.Book" resultType="com.ruoyi.manage.domain.vo.BookVo">
+        SELECT
+        b.id,
+        b.title,
+        b.cover,
+        b.author,
+        b.publisher,
+        b.publish_date AS publishDate,
+        b.price,
+        b.quantity,
+        b.region_id AS regionId,
+        r.name AS regionName,
+        b.category_id AS categoryId,
+        c.name AS categoryName,
+        b.create_by AS createBy,
+        b.update_by AS updateBy,
+        b.create_time AS createTime,
+        b.update_time AS updateTime,
+        b.remark
+        FROM tb_book b
+        LEFT JOIN tb_region r ON b.region_id = r.id
+        LEFT JOIN tb_category c ON b.category_id = c.id
+        <where>
+            <if test="title != null and title != ''">
+                AND b.title like concat('%', #{title}, '%')
+            </if>
+            <if test="author != null and author != ''">
+                AND b.author like concat('%', #{author}, '%')
+            </if>
+            <if test="regionId != null">
+                AND b.region_id = #{regionId}
+            </if>
+            <if test="categoryId != null">
+                AND b.category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertBook" parameterType="Book" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_book
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">title,</if>
+            <if test="cover != null">cover,</if>
+            <if test="author != null and author != ''">author,</if>
+            <if test="publisher != null and publisher != ''">publisher,</if>
+            <if test="publishDate != null">publish_date,</if>
+            <if test="price != null">price,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="regionId != null">region_id,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="cover != null">#{cover},</if>
+            <if test="author != null and author != ''">#{author},</if>
+            <if test="publisher != null and publisher != ''">#{publisher},</if>
+            <if test="publishDate != null">#{publishDate},</if>
+            <if test="price != null">#{price},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="regionId != null">#{regionId},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBook" parameterType="Book">
+        update tb_book
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="cover != null">cover = #{cover},</if>
+            <if test="author != null and author != ''">author = #{author},</if>
+            <if test="publisher != null and publisher != ''">publisher = #{publisher},</if>
+            <if test="publishDate != null">publish_date = #{publishDate},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="regionId != null">region_id = #{regionId},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBookById" parameterType="Long">
+        delete from tb_book where id = #{id}
+    </delete>
+
+    <delete id="deleteBookByIds" parameterType="String">
+        delete from tb_book where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
