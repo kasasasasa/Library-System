@@ -32,16 +32,36 @@ const usePermissionStore = defineStore(
       setSidebarRouters(routes) {
         this.sidebarRouters = routes
       },
+      // 清除动态添加的路由
+      clearRoutes() {
+        // 清除动态路由
+        this.addRoutes.forEach(route => {
+          if (route.name) {
+            router.removeRoute(route.name)
+          }
+        })
+        this.addRoutes = []
+        this.routes = constantRoutes
+        this.sidebarRouters = []
+        this.topbarRouters = []
+        this.defaultRoutes = []
+      },
       generateRoutes(roles) {
         return new Promise(resolve => {
+          // 清除之前的路由
+          this.clearRoutes()
           // 向后端请求路由数据
           getRouters().then(res => {
             const sdata = JSON.parse(JSON.stringify(res.data))
             const rdata = JSON.parse(JSON.stringify(res.data))
             const defaultData = JSON.parse(JSON.stringify(res.data))
-            const sidebarRoutes = filterAsyncRouter(sdata)
-            const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-            const defaultRoutes = filterAsyncRouter(defaultData)
+            // 去重处理
+            const uniqueSdata = removeDuplicateRoutes(sdata)
+            const uniqueRdata = removeDuplicateRoutes(rdata)
+            const uniqueDefaultData = removeDuplicateRoutes(defaultData)
+            const sidebarRoutes = filterAsyncRouter(uniqueSdata)
+            const rewriteRoutes = filterAsyncRouter(uniqueRdata, false, true)
+            const defaultRoutes = filterAsyncRouter(uniqueDefaultData)
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
             this.setRoutes(rewriteRoutes)
@@ -54,6 +74,22 @@ const usePermissionStore = defineStore(
       }
     }
   })
+
+// 去重函数，根据path和name去重
+function removeDuplicateRoutes(routes) {
+  const seen = new Set()
+  return routes.filter(route => {
+    const key = route.path + (route.name || '')
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    if (route.children && route.children.length > 0) {
+      route.children = removeDuplicateRoutes(route.children)
+    }
+    return true
+  })
+}
 
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
@@ -106,7 +142,10 @@ function filterChildren(childrenMap, lastRouter = false) {
         return
       }
     }
-    children = children.concat(el)
+    // 只有当没有子组件或者子组件已经处理完毕时才添加当前组件
+    if (!el.children || el.children.length === 0) {
+      children = children.concat(el)
+    }
   })
   return children
 }
